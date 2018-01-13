@@ -85,6 +85,12 @@ interpreted "typical" to mean.
 ```{r describe-sample}
 # type your code for the Exercise here, and Knit
 
+mean_samp = mean(samp$area)
+SE = sd(samp$area)/sqrt(length(samp$area))
+print(mean)
+print(SE)
+
+ggplot(samp, aes(area, fill = area))+geom_density(kernel = 'gaussian', color = 'red', alpha = 0.2, fill = "#ff4d4d")+geom_histogram(aes(y = ..density..), alpha = 0.7, fill = "#333333",bins=20) 
 ```
 
 1. True or False: My distribution should be similar to others' distributions who also collect random samples from this population, but it is likely not exactly the same since it's a random sample.
@@ -125,9 +131,10 @@ familiar with by now.
 
 Let's finally calculate the confidence interval:
 ```{r ci}
-samp %>%
+summary = samp %>%
   summarise(lower = mean(area) - z_star_95 * (sd(area) / sqrt(n)),
             upper = mean(area) + z_star_95 * (sd(area) / sqrt(n)))
+summary
 ```
 
 To recap: even though we don't know what the full population looks like, we're 95% 
@@ -160,6 +167,7 @@ data frame called `params` (short for population parameters), and name it `mu`.
 ```{r pop-mean}
 params <- ames %>%
   summarise(mu = mean(area))
+
 ```
 
 <div id="exercise">
@@ -168,7 +176,7 @@ Ames?
 </div>
 ```{r check-ci-contain-true-mean}
 # type your code for the Exercise here, and Knit
-
+params>summary$lower & params<summary$upper
 ```
 
 4. What proportion of 95% confidence intervals would you expect to capture the true population mean?
@@ -282,6 +290,17 @@ Is this proportion exactly equal to the confidence level? If not, explain why.
 </ol>
 ```{r find-99-perc-crit-val}
 # type your code for the Question 5 here, and Knit
+z_star_99 = qnorm(0.995)
+z_star_99
+cci <- ames %>%
+        rep_sample_n(size = n, reps = 50, replace = TRUE) %>%
+        summarise(lower = mean(area) - z_star_99 * (sd(area) / sqrt(n)),
+                  upper = mean(area) + z_star_99 * (sd(area) / sqrt(n)))
+
+cci%>%slice(5)
+
+cci<-cci%>% 
+  mutate(capture_mu = ifelse(params$mu >lower & params$mu<upper , "yes", "no"))
 
 ```
 
@@ -290,6 +309,17 @@ Is this proportion exactly equal to the confidence level? If not, explain why.
 </div>
 ```{r plot-99-perc-cis}
 # type your code for the Exercise here, and Knit
+cci_data <- data.frame(cci_id = c(1:50, 1:50), cci_bounds = c(cci$lower, cci$upper),
+                       capture_mu = c(cci$capture_mu, cci$capture_mu))
+
+
+
+
+ggplot(data=cci_data, aes(x = cci_bounds, y= cci_id,
+                          group = cci_id, color = capture_mu)) +
+  geom_point(size = 2) +
+  geom_line() +
+  geom_vline(xintercept = params$mu, color = "black")
 
 ```
 
