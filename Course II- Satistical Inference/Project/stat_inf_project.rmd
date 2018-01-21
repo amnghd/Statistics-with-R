@@ -1,0 +1,176 @@
+---
+title: "Statistical inference with the GSS data"
+output: 
+  html_document: 
+    fig_height: 4
+    highlight: pygments
+    theme: spacelab
+---
+
+## Setup
+
+### Load packages
+
+```{r load-packages, message = FALSE}
+library(ggplot2)
+library(dplyr)
+library(statsr)
+```
+
+### Load data
+
+Make sure your data and R Markdown files are in the same directory. When loaded
+your data file will be called `gss`. Delete this note when before you submit 
+your work. 
+
+```{r load-data}
+load("gss.Rdata")
+```
+
+
+
+* * *
+
+## Part 1: Data
+
+**Methodology**: the survery takes about 1.5 hours and is conducted in several ways: face to face, in-person interview, and from adults above 18 living in households in US. The GSS sample is drawn using an area probability design that randomly selects respondents in households across the United States to take part in the survey. Respondents that become part of the GSS sample are from a mix of urban, suburban, and rural geographic areas. Participation in the study is strictly voluntary.
+
+Based on these information we can conclude:
+
+**Random Sampling**: reputed as GSS is, we can assume that data acquisition is unbiased and is supervised for assuring the random sampling is performed. 
+
+**Random Assignment**: this data is not gathered from an empirical experiment. Therefore, the resutlts only demonstrate correlation, rather than causality.
+
+**Population/Generalizability**: the data is gathered from the contemporary American society and is only generalizable to this society.
+
+* * *
+
+## Part 2: Research question
+
+**Research questions:**
+
+1- Is the level of believing in spending in military ``natarms`` is correlated with whether they believe the divorce law should become simpler ``divlaw``.  This might show that there is an underlying feeling of disappoitment with people who are prowar.
+
+2- Does marital status ``marital`` correlate with the work status ``wrkstat``. It would be interesting to know the correlation between these two variables to know if they are picking up a confiding variabl, or there is no actual relationship.
+
+
+3 - Does whether you work for yourself/others ``wrkself`` correspond with the income level ``income16``? This is a personal interest on seeing what is the underlying character of different income level.
+
+* * *
+
+## Part 3 Exploratory data analysis
+
+** Question 1:**
+
+Is the level of believing in spending in military ``natarms`` is correlated with whether they believe the divorce law should become simpler ``divlaw``.  This might show that there is an underlying feeling of disappoitment with people who are prowar.
+
+```{r}
+q1 <- na.omit(gss%>%select(natarms, year, divlaw))
+bartable_q1 = table(q1%>%select(natarms,divlaw))
+bartable_q1
+```
+
+
+```{r}
+colfunc <- colorRampPalette(c("black", "orange"))
+barplot(prop.table(bartable_q1, 2) * 100,  legend = levels(unique(q1$natarms)) ,col=colfunc(3))  ## stacked 100%
+title(main = "How strongly opinion about divorce and army spnding is correlated", font.main = 4)
+```
+There is an obvious difference, and for a large data set we are dealing with, this might be statisticlly significant. Let's Perform the hypotheses.
+
+**Question 2:**
+
+Does marital status ``marital`` correlate with the work status ``wrkstat``?
+
+```{r}
+q2 <- na.omit(gss%>%select(wrkstat,marital))
+bartable_q2 = table(q2)
+bartable_q2
+```
+```{r}
+colfunc <- colorRampPalette(c("black", "orange"))
+barplot(prop.table(bartable_q2, 2) * 100,  legend = levels(unique(q2$wrkstat)) ,col=colfunc(8))
+title(main = "Barplot of marriage and the level of work.", font.main = 4)
+```
+```{r}
+plot(bartable_q2, 
+     main = "The Mosaic Graph of Marital vs Working Level", 
+     xlab = "Marital Status", 
+     ylab = "Working Level",
+     col=colfunc(8))
+```
+
+Obiously there is differences in the marital status and your work level.
+We are going to find if this observation is only by chance or is it meaningful.
+
+** Question 3:**
+
+Does whether you work for yourself/others ``wrkself`` correspond with the income level ``income16``?
+
+```{r}
+q3 <- na.omit(gss%>%select(incom16,wrkslf))
+bartable_q3 = table(q3)
+bartable_q3
+```
+```{r}
+colfunc <- colorRampPalette(c("black", "orange"))
+barplot(prop.table(bartable_q3, 2) * 100,  legend = levels(unique(q3$incom16)) ,col=colfunc(8))
+title(main = "Barplot of the employment vs income", font.main = 4)
+```
+There seems to be less difference, visually, between these two variables. Therefore, we need to check the statistical significance using chi-square test.
+
+* * *
+
+## Part 4: Inference
+
+**Checking Conditions:**
+
+1. Independance: Data has around 50k rows which means it is much smaller than 10% of the population. Moreover, it is acquired professionaly with taking different stratification into consideration.
+  
+2. Expected Count:We also need to have at least 5 counts in each cell in all cases. Therefore, we are ready to go.
+
+**Hypothesis 1**
+
+$H_0$: The level of believing in spending in military ``natarms`` is **independant** by whether they believe the divorce law should become simpler ``divlaw``. 
+
+$H_A$: The level of believing in spending in military ``natarms`` is **dependant** by whether they believe the divorce law should become simpler ``divlaw``. 
+```{r}
+chisq.test(bartable_q1) 
+```
+The decision: obviously, the p-value is small enough to demonstrate that the two variables are dependant. Therefore, having a sense of needing different level of military spending, is correlated with some variable that seems completely independant, divorce law. Therefore, it seems that having zealot reaction to such question might be picking up other characteristics.
+
+
+**Hypothesis 2**
+
+$H_0$: Marital status ``marital`` is **independant** from the work status ``wrkstat``.
+
+$H_A$: Marital status ``marital`` is **dependant** on the work status ``wrkstat``.
+```{r}
+chisq.test(bartable_q2) 
+```
+Again, we reach to a very nice result. Apparently, your wark status is dependant on the marital stats. The p-value is small enough that we confidently reject the null hypothesis.
+
+**Hypothesis 3**
+
+$H_0$: Whether you work for yourself/others ``wrkself`` is **independant** from the income level ``income16`
+
+$H_A$: Whether you work for yourself/others ``wrkself`` is **dependant** on the income level ``income16`
+
+
+```{r}
+chisq.test(bartable_q3) 
+```
+Again, we reach a  p value that is small enough to reject the null hypothesis.
+
+
+
+**Conclusion**
+
+All of the hypotheses used chi-square idependence test.
+
+1- Believing in spending in military ``natarms`` is correlated with whether they believe the divorce law should be different ``divlaw``.
+
+2- Marital status ``marital`` correlate with the work status ``wrkstat``.
+
+
+3 - Whether you work for yourself/others ``wrkself`` correspond with the income level ``income16``.
