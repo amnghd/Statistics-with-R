@@ -402,7 +402,7 @@ ggplot(data = m4, aes(x = .fitted, y = .resid)) +
 
 ```{r hist-ress}
 ggplot(data = m4, aes(x = .resid)) +
-  geom_histogram(binwidth = 25) +
+  geom_histogram(binwidth = 25, fill = 'darkorchid4') +
   xlab("Residuals")
 ```
 
