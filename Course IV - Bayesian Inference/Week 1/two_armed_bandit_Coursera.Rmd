@@ -36,13 +36,15 @@ bandit_sim()
 
 <div id="exercise">
 **Exercise**: Press the Reset button again, now play *30* times and use those results to guess which machine is the good one. Do you think it was easier or harder to make a decision with the additional plays? Why do you think that is?
+
+Higher number of samples decreases the uncertainty. 
 </div>
 
 <br/>
 
 Hopefully what you have observed is that as you played the slot machine initially it was difficult to determine which machine was which but as you played more it became more and more clear. In particular each time you play you naturally reassesses which machine you think is good, with the initial handful of plays your beliefs stay close to 50-50, potentially with a small bias towards the machine you've won more on. By the time you get to 30 plays you should have very strong beliefs about which machine is the "good" one. 
 
-This is the way in which we usually interact with the world - we try something and based on the outcome we modify our mental model of the world. This idea of updating beliefs based on observed data is one of the core tenets of Bayesian statistics - in the following sections we will work through the probability calculations and see how they correspond with our intuitive understanding.
+This is the way in which we usually interact with the world - we try something and based on the outcome we modify our mental model of the world. **This idea of updating beliefs based on observed data is one of the core tenets of Bayesian statistics - in the following sections we will work through the probability calculations and see how they correspond with our intuitive understanding.**
 
 
 ## Posterior Probabilities
@@ -72,9 +74,17 @@ P(M_1 \text{ is Good} ~|~ \text{Win on } M_1)
 $$
 
 1. Based on the preceding result, what is the probability that Machine 1 is "Bad" given you won playing on Machine 1?
+$$
+\begin{aligned}
+P(M_1 \text{ is Bad} ~|~ \text{Win on } M_1) 
+&= \frac{P(\text{Win on } M_1 ~|~ M_1 \text{ is Bad})~P(M_1 \text{ is Bad})}{P(\text{Win on } M_1)} \\
+&= \frac{P(\text{Win on } M_1 ~|~ M_1 \text{ is Bad})~P(M_1 \text{ is Bad})}{P(\text{Win on } M_1 ~|~ M_1 \text{ is Good})~P(M_1 \text{ is Good})+P(\text{Win on } M_1 ~|~ M_1 \text{ is Bad})~P(M_1 \text{ is Bad})} \\
+&= \frac{1/2 \times 1/3}{1/2 \times 1/2+1/3 \times 1/2} = 0.4
+\end{aligned}
+$$
 <ol>
 <li> 0.3 </li>
-<li> 0.4 </li>
+<li> ***0.4*** </li>
 <li> 0.5 </li>
 <li> 0.6 </li>
 <li> 0.7 </li>
@@ -82,11 +92,12 @@ $$
 
 
 2. Based on the preceding result, what is the probability that Machine 2 is "Good" given you won playing on Machine 1? 
+$$ p(M_1 \ is\ bad) = p(M_2\ is\ good ) = 0.4 $$
 <ol>
 <li> 0.3 </li>
 <li> 0.4 </li>
 <li> 0.5 </li>
-<li> 0.6 </li>
+<li> ***0.6*** </li>
 <li> 0.7 </li>
 </ol>
 
@@ -94,9 +105,9 @@ $$
 3. Under the Bayesian paradigm, which of the following correctly matches the probabilities with their names?
 <ol>
 <li> 
-  Posterior - $P(M_1 \text{ is Good} ~|~ \text{Win on } M_1)$ <br/> 
+  ***Posterior - $P(M_1 \text{ is Good} ~|~ \text{Win on } M_1)$ <br/> 
   Prior - $P(M_1 \text{ is Good})$ <br/>
-  Likelihood - $P(\text{Win on } M_1 ~|~ M_1 \text{ is Good})$ 
+  Likelihood - $P(\text{Win on } M_1 ~|~ M_1 \text{ is Good})$ ***
 </li>
 <li> 
   Posterior: $P(M_1 \text{ is Good} ~|~ \text{Win on } M_1)$ <br/>
@@ -141,20 +152,24 @@ bandit_posterior(data1) %>% bandit_posterior(data2, prior=.)
 
 Note that this exactly matches the probabilities we calculated when we provided the data all at once.
 
-5. Using the `bandit_posterior` function calculate the posterior probabilities of Machine 1 and 2 being "good" after playing Machine 1 twice and winning both times and then playing Machine 2 three times and winning twice and then losing.
+4. Using the `bandit_posterior` function calculate the posterior probabilities of Machine 1 and 2 being "good" after playing Machine 1 twice and winning both times and then playing Machine 2 three times and winning twice and then losing.
+
 <ol>
 <li> $P(M_1\text{ is good}~|~\text{data}) = 0.250$, $P(M_2\text{ is good}~|~\text{data}) = 0.750$ </li>
 <li> $P(M_1\text{ is good}~|~\text{data}) = 0.429$, $P(M_2\text{ is good}~|~\text{data}) = 0.571$ </li>
-<li> $P(M_1\text{ is good}~|~\text{data}) = 0.571$, $P(M_2\text{ is good}~|~\text{data}) = 0.429$ </li>
+<li> ***$P(M_1\text{ is good}~|~\text{data}) = 0.571$, $P(M_2\text{ is good}~|~\text{data}) = 0.429$ </li>***
 <li> $P(M_1\text{ is good}~|~\text{data}) = 0.750$, $P(M_2\text{ is good}~|~\text{data}) = 0.250$ </li>
 </ol>
 
 
 5. What would the posterior probabilities be if we had instead played Machine 2 first, playing three times, winning twice and losing once and then playing Machine 1 twice and winning both times?
+```{r}
+bandit_posterior(data = data.frame(machine=c(2L,2L,2L,1L,1L), outcome=c( "W","W","L","W","W")))
+```
 <ol>
 <li> $P(M_1\text{ is good}~|~\text{data}) = 0.250$, $P(M_2\text{ is good}~|~\text{data}) = 0.750$ </li>
 <li> $P(M_1\text{ is good}~|~\text{data}) = 0.429$, $P(M_2\text{ is good}~|~\text{data}) = 0.571$ </li>
-<li> $P(M_1\text{ is good}~|~\text{data}) = 0.571$, $P(M_2\text{ is good}~|~\text{data}) = 0.429$ </li>
+<li> ***$P(M_1\text{ is good}~|~\text{data}) = 0.571$, $P(M_2\text{ is good}~|~\text{data}) = 0.429$ </li>***
 <li> $P(M_1\text{ is good}~|~\text{data}) = 0.750$, $P(M_2\text{ is good}~|~\text{data}) = 0.250$ </li>
 </ol>
 
@@ -163,7 +178,11 @@ Note that this exactly matches the probabilities we calculated when we provided 
 **Exercise**: Confirm the updating property we just discussed by connecting together two calls of `bandit_posterior`, the first of which calculates the posterior probability for the first two plays on Machine 1. The second call should use these values as its prior and then calculate a new posterior using the data from the subsequent three plays on Machine 2.
 </div>
 
-
+```{r}
+data1 = data.frame(machine=c(2L,2L,2L), outcome=c("W","W","L"))
+data2 = data.frame(machine=c(1L,1L), outcome=c("W","W"))
+bandit_posterior(data2) %>% bandit_posterior(data1, prior=.)
+```
 
 ## Back to the Bandits
 
@@ -180,15 +199,9 @@ Reset the simulation and then play at least 50 times. Use subsetting (e.g. `data
 We can visualize how these posterior probabilities update using the `plot_posterior` function which calculates and plots the posterior probability after each play. 
 
 ```{r}
-data = data.frame(machine = c(1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 
-                              1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 
-                              2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 
-                              2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L),
-                  outcome = c("L", "W", "W", "W", "L", "L", "L", "W", "W", "L", 
-                              "L", "W", "W", "W", "W", "L", "W", "L", "L", "L", 
-                              "W", "L", "L", "W", "L", "L", "L", "W", "L", "W", 
-                              "L", "L", "W", "L", "L", "L", "W", "W", "L", "W"))
+data = data.frame(machine = c(1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 1L), outcome = c("L", "L", "W", "W", "L", "L", "L", "L", "L", "W", "L", "W", "L", "W", "W", "L", "L", "W", "L", "W", "W", "W", "W", "L", "W", "W", "L", "L", "L", "L", "W", "L", "L", "W", "L", "W", "L", "L", "W", "L", "L", "L", "L", "L", "W", "W", "W", "W", "L", "L", "W", "W", "L", "L", "W", "W", "W", "L", "W", "W", "L", "L", "L", "W", "L", "W", "W", "L", "W", "L", "W", "L", "W", "L", "W", "L", "L", "L", "W", "W", "L", "L", "L", "L", "W", "L", "L", "W", "L", "L", "L", "L", "L", "L", "L", "L", "W", "L", "L", "W", "L", "L", "L", "L", "L", "W", "W", "W", "L", "L", "W", "W", "W", "W", "L", "L", "L", "W", "W", "W", "L", "W", "W", "L", "W", "L", "W", "W", "L", "W", "L", "W", "W", "L", "W", "L", "L", "W", "L", "L", "W", "L", "L", "L", "W", "W", "L", "L", "L", "L", "L", "W", "W", "L", "L", "W", "W", "L", "L", "W", "L", "L", "L", "W", "L", "L", "L", "W", "L", "L", "L", "W", "W", "L", "L", "W", "W", "L", "W", "L", "W", "W", "L", "W", "L", "L", "L", "W", "W", "W", "W", "W", "W", "W", "L", "L", "W", "W", "L", "W", "L", "L", "L", "L", "W", "L"))
 plot_bandit_posterior(data)
+bandit_posterior(data)# applet says machine 1 is good
 ```
 
 <div id="exercise">
@@ -200,7 +213,7 @@ Plot the result of your last 50 plays, describe the pattern you see for the two 
 <ol>
 <li> $P(M_1~|~\text{data})$ and $P(M_2~|~\text{data})$ are complementary </li>
 <li> Machine 1 and Machine 2 being "good" are mutually exclusive events </li>
-<li> All of the above </li>
+<li> ***All of the above ***</li>
 </ol>
 
 
