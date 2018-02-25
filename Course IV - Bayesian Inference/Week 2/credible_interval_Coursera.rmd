@@ -2,10 +2,11 @@
 title: "Bayesian credible intervals"
 runtime: shiny
 output:
-  html_document: 
-    fig_height: 4
-    highlight: pygments
-    theme: spacelab
+  html_notebook: 
+    fig_caption: yes
+    highlight: tango
+    theme: journal
+    toc: yes
 ---
 
 ```{r echo=FALSE}
@@ -73,8 +74,8 @@ qnorm(c(0.025, 0.975), mean = 10, sd = 2.236)
 <ol>
 <li> (-1.678, 5.678) </li>
 <li> (0.043, 0.641) </li>
-<li> (0.063, 0.582) </li>
-<li> ***(0.071, 0.949)*** </li>
+<li> ***(0.063, 0.582)*** </li>
+<li> (0.071, 0.949) </li>
 </ol>
 
 <div id="exercise">
@@ -82,7 +83,7 @@ qnorm(c(0.025, 0.975), mean = 10, sd = 2.236)
 </div>
 ```{r beta-ci}
 # type your code for the Exercise here, and Knit
-qgamma(c(0.05, 0.95), shape = 2, rate = 5)
+qbeta(c(0.05, 0.95), shape1 = 2, shape2 = 5)
 ```
 
 
@@ -194,14 +195,15 @@ Let's consider one other prior distribution: $Beta(a = 5, b = 200)$.
 
 7. Which is of the following is the center of the $Beta(a = 5, b = 200)$ distribution?
 ```{r}
-Pos3 = dbeta(p,shape1 = 5, shape2 = 200)
-plot(p,Pos3,col="red", type = "l")
+p0 = seq(-2,2,length=1000)
+Pos3 = dbeta(p0,shape1 = 5, shape2 = 200)
+plot(p0,Pos3,col="red", type = "p")
 mean(Pos3)
 ```
 <ol>
 <li> approximately 0.03 </li>
-<li> ***approximately 0.15*** </li>
-<li> approximately 0.50 </li>
+<li> approximately 0.15 </li>
+<li> ***approximately 0.50*** </li>
 <li> approximately 0.97 </li>
 </ol>
 
@@ -230,11 +232,11 @@ table(brfss$exercise)
 
 9. What is the 90% credible interval for $p$, the proportion of Americans who exercise, based on a uniform prior distribution?
 ```{r}
-qbeta(c(0.025, 0.975), shape1 = 3868, shape2 = 1132)
+qbeta(c(0.05, 0.95), shape1 = 3868, shape2 = 1132)
 ```
 <ol>
-**<li> (0.762, 0.785) </li>**
-<li> (0.764, 0.783) </li> 
+<li> (0.762, 0.785) </li>
+<li> ***(0.764, 0.783)*** </li> 
 <li> (0.718, 0.737) </li>
 <li> (0.758, 0.789) </li>
 </ol>
